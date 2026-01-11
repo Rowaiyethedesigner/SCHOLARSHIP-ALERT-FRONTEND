@@ -5,60 +5,69 @@ export default async function Home() {
 
   try {
     calls = await getCalls();
-  } catch (e) {}
+  } catch {}
 
   return (
     <>
       {/* HERO */}
-      <section className="mb-12">
-        <h2 className="text-4xl font-semibold tracking-tight mb-4">
-          Verified Scholarships for
-          <span className="block text-gray-600">
-            USA & Canada
+      <section className="max-w-3xl mb-24">
+        <h1 className="text-5xl font-semibold tracking-tight leading-tight">
+          Verified postgraduate scholarships
+          <span className="block text-gray-500">
+            for USA & Canada
           </span>
-        </h2>
+        </h1>
 
-        <p className="max-w-2xl text-gray-600 text-lg">
-          Curated, verified, and sustainability-focused scholarships
-          for postgraduate studies in engineering, AI, and development.
+        <p className="mt-6 text-lg text-gray-600">
+          A curated platform for sustainable development,
+          engineering, and AI-focused funding opportunities.
         </p>
       </section>
 
-      {/* CONTENT */}
-      {calls.length === 0 && (
-        <p className="text-gray-500">No scholarships available yet.</p>
-      )}
+      {/* LIST */}
+      <section className="space-y-10">
+        {calls.length === 0 && (
+          <p className="text-gray-500">
+            No scholarships available at the moment.
+          </p>
+        )}
 
-      <section className="grid gap-6 md:grid-cols-2">
         {calls.map((call: any) => (
           <article
             key={call.id}
-            className="bg-white rounded-2xl p-6 border hover:shadow-sm transition"
+            className="group"
           >
-            <div className="mb-4">
-              <h3 className="text-xl font-semibold leading-snug">
+            <div className="flex flex-col gap-2">
+              <h2 className="text-2xl font-medium leading-snug group-hover:underline underline-offset-4">
                 {call.title}
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
+              </h2>
+
+              <div className="text-sm text-gray-500">
                 {call.host_country} · {call.degree_level}
-              </p>
+              </div>
+
+              <div className="text-sm text-gray-600 max-w-3xl">
+                Theme: {call.theme}  
+                <br />
+                SDGs: {call.sdg_tags}
+              </div>
+
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-sm text-gray-500">
+                  Deadline: {call.deadline}
+                </span>
+
+                <a
+                  href={call.source_url}
+                  target="_blank"
+                  className="text-sm font-medium text-black hover:opacity-70 transition"
+                >
+                  View official call →
+                </a>
+              </div>
             </div>
 
-            <div className="text-sm text-gray-600 space-y-1">
-              <p><strong>Theme:</strong> {call.theme}</p>
-              <p><strong>SDGs:</strong> {call.sdg_tags}</p>
-              <p><strong>Deadline:</strong> {call.deadline}</p>
-            </div>
-
-            <div className="mt-6">
-              <a
-                href={call.source_url}
-                target="_blank"
-                className="inline-flex items-center text-sm font-medium text-blue-600 hover:underline"
-              >
-                View official call →
-              </a>
-            </div>
+            <div className="mt-10 h-px bg-gray-100" />
           </article>
         ))}
       </section>
