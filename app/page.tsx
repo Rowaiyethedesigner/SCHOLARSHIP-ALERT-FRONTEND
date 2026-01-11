@@ -5,36 +5,63 @@ export default async function Home() {
 
   try {
     calls = await getCalls();
-  } catch (error) {
-    console.error(error);
-  }
+  } catch (e) {}
 
   return (
-    <main style={{ padding: 40 }}>
-      <h1>Scholarship Alert Platform</h1>
-      <p>
-        USA & Canada scholarships focused on Sustainable Development.
-      </p>
+    <>
+      {/* HERO */}
+      <section className="mb-12">
+        <h2 className="text-4xl font-semibold tracking-tight mb-4">
+          Verified Scholarships for
+          <span className="block text-gray-600">
+            USA & Canada
+          </span>
+        </h2>
 
-      <hr style={{ margin: "20px 0" }} />
+        <p className="max-w-2xl text-gray-600 text-lg">
+          Curated, verified, and sustainability-focused scholarships
+          for postgraduate studies in engineering, AI, and development.
+        </p>
+      </section>
 
+      {/* CONTENT */}
       {calls.length === 0 && (
-        <p>No scholarships available yet.</p>
+        <p className="text-gray-500">No scholarships available yet.</p>
       )}
 
-      {calls.map((call: any) => (
-        <div key={call.id} style={{ marginBottom: 20 }}>
-          <h3>{call.title}</h3>
-          <p>
-            {call.host_country} • {call.degree_level}
-          </p>
-          <p>SDGs: {call.sdg_tags}</p>
-          <p>Deadline: {call.deadline}</p>
-          <a href={call.source_url} target="_blank">
-            Apply
-          </a>
-        </div>
-      ))}
-    </main>
+      <section className="grid gap-6 md:grid-cols-2">
+        {calls.map((call: any) => (
+          <article
+            key={call.id}
+            className="bg-white rounded-2xl p-6 border hover:shadow-sm transition"
+          >
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold leading-snug">
+                {call.title}
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {call.host_country} · {call.degree_level}
+              </p>
+            </div>
+
+            <div className="text-sm text-gray-600 space-y-1">
+              <p><strong>Theme:</strong> {call.theme}</p>
+              <p><strong>SDGs:</strong> {call.sdg_tags}</p>
+              <p><strong>Deadline:</strong> {call.deadline}</p>
+            </div>
+
+            <div className="mt-6">
+              <a
+                href={call.source_url}
+                target="_blank"
+                className="inline-flex items-center text-sm font-medium text-blue-600 hover:underline"
+              >
+                View official call →
+              </a>
+            </div>
+          </article>
+        ))}
+      </section>
+    </>
   );
 }
