@@ -1,24 +1,48 @@
-type CallQueryParams = {
+import SearchFilters from "./components/SearchFilters";
+import { getCalls } from "@/lib/api";
+
+type SearchParams = {
   q?: string;
   host_country?: string;
   degree_level?: string;
 };
 
-export async function getCalls(params: CallQueryParams = {}) {
-  const query = new URLSearchParams();
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  let calls: any[] = [];
 
-  if (params.q) query.set("q", params.q);
-  if (params.host_country) query.set("host_country", params.host_country);
-  if (params.degree_level) query.set("degree_level", params.degree_level);
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE}/calls?${query.toString()}`,
-    { cache: "no-store" }
-  );
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch scholarships");
+  try {
+    calls = await getCalls(searchParams);
+  } catch (error) {
+    console.error(error);
   }
 
-  return res.json();
+  return (
+    <main style={{ padding: 40 }}>
+      <h1 style={{ fontSize: 32, marginBottom: 20 }}>
+        Scholarship Alert Platform
+      </h1>
+
+      {/* SEARCH BAR */}
+      <SearchFilters />
+
+      {/* RESULTS */}
+      {calls.length === 0 && <p>No scholarships found.</p>}
+
+      {calls.map((call) => (
+        <section key={call.id} style={{ marginBottom: 24 }}>
+          <h3>{call.title}</h3>
+          <p>
+            {call.host_country} · {call.degree_level}
+          </p>
+          <a href={call.source_url} target="_blank" rel="noreferrer">
+            Apply →
+          </a>
+        </section>
+      ))}
+    </main>
+  );
 }
