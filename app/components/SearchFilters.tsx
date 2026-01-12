@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SearchFilters() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [query, setQuery] = useState("");
-  const [country, setCountry] = useState("");
-  const [degree, setDegree] = useState("");
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [country, setCountry] = useState(searchParams.get("host_country") || "");
+  const [degree, setDegree] = useState(searchParams.get("degree_level") || "");
 
   function applySearch() {
     const params = new URLSearchParams();
@@ -21,44 +22,38 @@ export default function SearchFilters() {
   }
 
   return (
-    <div className="mb-16 space-y-6">
-      {/* SEARCH BAR */}
+    <div style={{ marginBottom: 40 }}>
       <input
         type="text"
-        placeholder="Search scholarships (AI, agriculture, Canada…) "
+        placeholder="Search scholarships (AI, agriculture, Canada…)"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && applySearch()}
-        className="w-full max-w-2xl border rounded-xl px-5 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-black"
+        style={{
+          width: "100%",
+          maxWidth: 600,
+          padding: 14,
+          fontSize: 16,
+          border: "2px solid black",
+          marginBottom: 12,
+        }}
       />
 
-      {/* FILTERS */}
-      <div className="flex flex-wrap gap-3 text-sm">
-        <select
-          onChange={(e) => setCountry(e.target.value)}
-          className="border rounded-lg px-4 py-2 bg-white"
-        >
+      <div style={{ display: "flex", gap: 8 }}>
+        <select value={country} onChange={(e) => setCountry(e.target.value)}>
           <option value="">Country</option>
           <option value="Canada">Canada</option>
           <option value="USA">USA</option>
         </select>
 
-        <select
-          onChange={(e) => setDegree(e.target.value)}
-          className="border rounded-lg px-4 py-2 bg-white"
-        >
+        <select value={degree} onChange={(e) => setDegree(e.target.value)}>
           <option value="">Degree</option>
           <option value="MEng">MEng</option>
           <option value="MSc">MSc</option>
           <option value="PhD">PhD</option>
         </select>
 
-        <button
-          onClick={applySearch}
-          className="ml-auto bg-black text-white px-6 py-2 rounded-lg hover:opacity-90"
-        >
-          Search
-        </button>
+        <button onClick={applySearch}>Search</button>
       </div>
     </div>
   );
