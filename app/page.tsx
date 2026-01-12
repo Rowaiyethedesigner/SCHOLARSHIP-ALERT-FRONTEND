@@ -1,21 +1,44 @@
-export default function Home() {
+import SearchFilters from "./components/SearchFilters";
+import { getCalls } from "@/lib/api";
+
+type PageProps = {
+  searchParams: {
+    q?: string;
+    host_country?: string;
+    degree_level?: string;
+  };
+};
+
+export default async function Home({ searchParams }: PageProps) {
+  let calls: any[] = [];
+
+  try {
+    calls = await getCalls(searchParams);
+  } catch {}
+
   return (
-    <div style={{ padding: "40px" }}>
-      <h1 style={{ fontSize: "32px", marginBottom: "20px" }}>
-        TEST SEARCH BAR
+    <div style={{ padding: 40 }}>
+      <h1 style={{ fontSize: 32, marginBottom: 20 }}>
+        Scholarship Alert Platform
       </h1>
 
-      <input
-        type="text"
-        placeholder="If you can see this, the page.tsx is rendering"
-        style={{
-          width: "100%",
-          maxWidth: "500px",
-          padding: "12px",
-          fontSize: "16px",
-          border: "2px solid black",
-        }}
-      />
+      {/* SEARCH BAR — NOW GUARANTEED TO RENDER */}
+      <SearchFilters />
+
+      {/* RESULTS */}
+      {calls.length === 0 && <p>No scholarships found.</p>}
+
+      {calls.map((call) => (
+        <div key={call.id} style={{ marginBottom: 20 }}>
+          <h3>{call.title}</h3>
+          <p>
+            {call.host_country} · {call.degree_level}
+          </p>
+          <a href={call.source_url} target="_blank">
+            Apply →
+          </a>
+        </div>
+      ))}
     </div>
   );
 }
