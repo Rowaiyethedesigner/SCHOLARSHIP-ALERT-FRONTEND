@@ -1,51 +1,60 @@
-import { Suspense } from "react";
-import SearchFilters from "./components/SearchFilters";
-import { getCalls } from "@/lib/api";
+"use client";
 
-type SearchParams = {
-  q?: string;
-  host_country?: string;
-  degree_level?: string;
-};
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  let calls: any[] = [];
+export default function SearchFilters() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  try {
-    calls = await getCalls(searchParams);
-  } catch (error) {
-    console.error(error);
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const [country, setCountry] = useState(searchParams.get("host_country") || "");
+  const [degree, setDegree] = useState(searchParams.get("degree_level") || "");
+
+  function applySearch() {
+    const params = new URLSearchParams();
+
+    if (query) params.set("q", query);
+    if (country) params.set("host_country", country);
+    if (degree) params.set("degree_level", degree);
+
+    router.push(`/?${params.toString()}`);
   }
 
   return (
-    <main style={{ padding: 40 }}>
-      <h1 style={{ fontSize: 32, marginBottom: 20 }}>
-        Scholarship Alert Platform
-      </h1>
+    <div style={{ marginBottom: 40 }}>
+      <input
+        type="text"
+        placeholder="Search scholarships (AI, agriculture, Canada…)"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && applySearch()}
+        style={{
+          width: "100%",
+          maxWidth: 600,
+          padding: 14,
+          fontSize: 16,
+          border: "2px solid black",
+          marginBottom: 12,
+        }}
+      />
 
-      {/* SEARCH BAR (MUST BE SUSPENDED) */}
-      <Suspense fallback={<div>Loading search…</div>}>
-        <SearchFilters />
-      </Suspense>
+      <div style={{ display: "flex", gap: 8 }}>
+        <select value={country} onChange={(e) => setCountry(e.target.value)}>
+          <option value="">Country</option>
+          <option value="Canada">Canada</option>
+          <option value="USA">USA</option>
+        </select>
 
-      {/* RESULTS */}
-      {calls.length === 0 && <p>No scholarships found.</p>}
+        <select value={degree} onChange={(e) => setDegree(e.target.value)}>
+          <option value="">Degree</option>
+          <option value="MEng">MEng</option>
+          <option value="MSc">MSc</option>
+          <option value="PhD">PhD</option>
+        </select>
 
-      {calls.map((call) => (
-        <section key={call.id} style={{ marginBottom: 24 }}>
-          <h3>{call.title}</h3>
-          <p>
-            {call.host_country} · {call.degree_level}
-          </p>
-          <a href={call.source_url} target="_blank" rel="noreferrer">
-            Apply →
-          </a>
-        </section>
-      ))}
-    </main>
+        <button onClick={applySearch}>Search</button>
+      </div>
+    </div>
   );
 }
