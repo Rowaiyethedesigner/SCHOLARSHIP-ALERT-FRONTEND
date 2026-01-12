@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import SearchFilters from "./components/SearchFilters";
 import { getCalls } from "@/lib/api";
 
@@ -26,8 +27,10 @@ export default async function Page({
         Scholarship Alert Platform
       </h1>
 
-      {/* SEARCH BAR */}
-      <SearchFilters />
+      {/* SEARCH BAR (MUST BE SUSPENDED) */}
+      <Suspense fallback={<div>Loading search…</div>}>
+        <SearchFilters />
+      </Suspense>
 
       {/* RESULTS */}
       {calls.length === 0 && <p>No scholarships found.</p>}
