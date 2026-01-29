@@ -1,60 +1,133 @@
-"use client";
+import { useState, useEffect } from "react";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+type Call = {
+  id: number;
+  title: string;
+  host_country: string;
+  field: string;
+  theme: string;
+  degree_level: string;
+  deadline: string;
+  source_url: string;
+};
 
-export default function SearchFilters() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+const API_URL = "https://scholarship-alert-backend.onrender.com";
 
-  const [query, setQuery] = useState(searchParams.get("q") || "");
-  const [country, setCountry] = useState(searchParams.get("host_country") || "");
-  const [degree, setDegree] = useState(searchParams.get("degree_level") || "");
+export default function Home() {
+  const [search, setSearch] = useState("");
+  const [calls, setCalls] = useState<Call[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  function applySearch() {
-    const params = new URLSearchParams();
+  const fetchCalls = async (query = "") => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/calls?q=${query}`);
+      const data = await res.json();
+      setCalls(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    if (query) params.set("q", query);
-    if (country) params.set("host_country", country);
-    if (degree) params.set("degree_level", degree);
+  useEffect(() => {
+    fetchCalls(); // load all verified calls on first load
+  }, []);
 
-    router.push(`/?${params.toString()}`);
-  }
+  const handleSearch = () => {
+    fetchCalls(search);
+  };
 
   return (
-    <div style={{ marginBottom: 40 }}>
-      <input
-        type="text"
-        placeholder="Search scholarships (AI, agriculture, Canada…)"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && applySearch()}
-        style={{
-          width: "100%",
-          maxWidth: 600,
-          padding: 14,
-          fontSize: 16,
-          border: "2px solid black",
-          marginBottom: 12,
-        }}
-      />
+    <main style={{ padding: "40px", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ fontSize: "32px", fontWeight: "bold" }}>
+        Scholarship Alert Platform
+      </h1>
 
-      <div style={{ display: "flex", gap: 8 }}>
-        <select value={country} onChange={(e) => setCountry(e.target.value)}>
-          <option value="">Country</option>
-          <option value="Canada">Canada</option>
-          <option value="USA">USA</option>
-        </select>
+      <p style={{ marginTop: "8px", color: "#555" }}>
+        Search verified USA & Canada scholarships focused on sustainable development
+      </p>
 
-        <select value={degree} onChange={(e) => setDegree(e.target.value)}>
-          <option value="">Degree</option>
-          <option value="MEng">MEng</option>
-          <option value="MSc">MSc</option>
-          <option value="PhD">PhD</option>
-        </select>
+      {/* SEARCH BAR */}
+      <div style={{ marginTop: "30px", display: "flex", gap: "10px" }}>
+        <input
+          type="text"
+          placeholder="Search scholarships (AI, Engineering, Climate, PhD...)"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            padding: "12px",
+            width: "300px",
+            border: "1px solid #ccc",
+            borderRadius: "6px",
+            fontSize: "14px",
+          }}
+        />
 
-        <button onClick={applySearch}>Search</button>
+        <button
+          onClick={handleSearch}
+          style={{
+            padding: "12px 20px",
+            borderRadius: "6px",
+            border: "none",
+            backgroundColor: "#000",
+            color: "#fff",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          Search
+        </button>
       </div>
-    </div>
+
+      {/* RESULTS */}
+      <div style={{ marginTop: "40px" }}>
+        {loading && <p>Loading scholarships...</p>}
+
+        {!loading && calls.length === 0 && (
+          <p>No scholarships available yet.</p>
+        )}
+
+        {!loading &&
+          calls.map((call) => (
+            <div
+              key={call.id}
+              style={{
+                border: "1px solid #eee",
+                borderRadius: "10px",
+                padding: "20px",
+                marginBottom: "16px",
+              }}
+            >
+              <h3 style={{ fontSize: "18px", fontWeight: "bold" }}>
+                {call.title}
+              </h3>
+
+              <p style={{ marginTop: "6px", color: "#555" }}>
+                {call.field} • {call.degree_level} • {call.host_country}
+              </p>
+
+              <p style={{ marginTop: "6px", color: "#777" }}>
+                Theme: {call.theme}
+              </p>
+
+              <a
+                href={call.source_url}
+                target="_blank"
+                style={{
+                  display: "inline-block",
+                  marginTop: "10px",
+                  color: "#000",
+                  textDecoration: "underline",
+                  fontSize: "14px",
+                }}
+              >
+                View Scholarship →
+              </a>
+            </div>
+          ))}
+      </div>
+    </main>
   );
 }
